@@ -4,7 +4,7 @@
 # Required input data in the working folder:
 #
 # - Affymetrix annotations for the HG-U133A array, downloadable from Moodle: HG-U133A.na35.annot.csv.zip
-# (alternatively, this and other annotations can only be obtained via free registration on the Affymetrix website: http://www.affymetrix.com/support/technical/byproduct.affx?product=hugene-1_0-st-v1)
+# (alternatively, this and other annotations can only be obtained via free registration on the Affymetrix website: http://www.affymetrix.com/support/technical/byproduct.affx?product=hgu133)
 #
 # - Pathway annotations from MSigDb, downloadable from Moodle: msigdb_pathway_annoations.zip
 # (alternatively, these and other annotations can be obtained from http://software.broadinstitute.org/gsea/msigdb/ after free registration)
