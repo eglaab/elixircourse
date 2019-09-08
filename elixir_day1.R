@@ -142,6 +142,9 @@ if(!require('e1071'))
 	require('e1071')
 }
 
+#
+# End of package installations
+#
 
 
 # set the location of your working directory (note that there are differences between Windows & Mac concerning the use of back slash "\" vs. forward slash "/")
