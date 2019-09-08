@@ -18,13 +18,17 @@
 # Installation and loading of R-packages
 #
 
+#
+# Installation and loading of R-packages
+#
+
 ## Default repo
 local({r <- getOption("repos")
        r["CRAN"] <- "https://cloud.r-project.org" 
        options(repos=r)
 })
 
-update.packages(ask = FALSE)
+update.packages(ask = FALSE, dependencies = c('Suggests'))
 
 # load annotation package for gene ID conversion
 
@@ -36,7 +40,7 @@ if(!require('hgu133a.db'))
 {
 	if (!requireNamespace("BiocManager", quietly = TRUE))
 	    install.packages("BiocManager")
-	BiocManager::install("hgu133a.db", suppressUpdates=TRUE)
+	BiocManager::install("hgu133a.db", suppressUpdates=TRUE, ask = FALSE)
 	require('hgu133a.db')
 }
 
@@ -46,7 +50,7 @@ if(!require('arrayQualityMetrics'))
 {
   if (!requireNamespace("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
-  BiocManager::install("arrayQualityMetrics", suppressUpdates=TRUE)
+  BiocManager::install("arrayQualityMetrics", suppressUpdates=TRUE, ask = FALSE)
   install.packages("gridSVG")
   # install.packages("https://cran.r-project.org/src/contrib/Archive/gridSVG/gridSVG_1.4-3.tar.gz", repos=NULL)
   require('arrayQualityMetrics')
@@ -56,7 +60,7 @@ if(!require('Biobase'))
   if (!requireNamespace("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
 
-  BiocManager::install("Biobase", suppressUpdates=TRUE)
+  BiocManager::install("Biobase", suppressUpdates=TRUE, ask = FALSE)
   require('Biobase')
 }
 
@@ -65,7 +69,7 @@ if(!require('impute'))
 {
  if (!requireNamespace("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
- BiocManager::install("impute", suppressUpdates=TRUE)
+ BiocManager::install("impute", suppressUpdates=TRUE, ask = FALSE)
  require('impute')
 }
 
@@ -81,7 +85,7 @@ if(!require('vsn'))
 {
 	if (!requireNamespace("vsn", quietly = TRUE))
 	    install.packages("BiocManager")
-	BiocManager::install("vsn", suppressUpdates=TRUE)
+	BiocManager::install("vsn", suppressUpdates=TRUE, ask = FALSE)
 	require('vsn')
 }
 
@@ -99,7 +103,7 @@ if(!require('clusterProfiler'))
 	if (!requireNamespace("BiocManager", quietly = TRUE))
 	    install.packages("BiocManager")
 
-	BiocManager::install("clusterProfiler", suppressUpdates=TRUE)
+	BiocManager::install("clusterProfiler", suppressUpdates=TRUE, ask = FALSE)
 	require('clusterProfiler')
 }
 
@@ -108,7 +112,7 @@ if(!require('GSEABase'))
 	if (!requireNamespace("BiocManager", quietly = TRUE))
 	    install.packages("BiocManager")
 
-	BiocManager::install("GSEABase", suppressUpdates=TRUE)
+	BiocManager::install("GSEABase", suppressUpdates=TRUE, ask = FALSE)
 	require('GSEABase')
 }
 
@@ -118,7 +122,7 @@ if(!require('limma'))
 	if (!requireNamespace("BiocManager", quietly = TRUE))
 	    install.packages("BiocManager")
 
-	BiocManager::install("limma", suppressUpdates=TRUE)
+	BiocManager::install("limma", suppressUpdates=TRUE, ask = FALSE)
 	require('limma')
 }
 
