@@ -18,10 +18,6 @@
 # Installation and loading of R-packages
 #
 
-#
-# Installation and loading of R-packages
-#
-
 ## Default repo
 local({r <- getOption("repos")
        r["CRAN"] <- "https://cloud.r-project.org" 
