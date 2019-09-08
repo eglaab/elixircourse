@@ -468,41 +468,50 @@ head(ttable_moran)
 # Meta-analysis
 #
 
-metarank = pvalcombination(esets=list(zhangfilt2, moranfilt), classes=list(zhang_label, moran_outcome_final), moderated = "limma", BHth = 0.05)
-#     DE     IDD    Loss     IDR     IRR 
-#4486.00 1118.00 2254.00   24.92   40.09
+metarank = pvalcombination(esets=list(zhangvsn, moranvsn), classes=list(zhang_label, moran_outcome_final), moderated = "limma", BHth = 0.05)
+#       DE     IDD    Loss     IDR     IRR
+#3790.00  865.00 1783.00   22.82   37.87
 
-metacomb <- cbind(rownames(zhangfilt2)[metarank$Meta], metarank$TestStatistic[metarank$Meta])
+
+metacomb <- cbind(rownames(zhangvsn)[metarank$Meta], metarank$TestStatistic[metarank$Meta])
 metaord <- order(abs(as.numeric(metacomb[,2])), decreasing=TRUE)
 
-logfcmat = cbind(ttable_zhang[match(rownames(zhangfilt2), rownames(ttable_zhang)),]$logFC, ttable_moran[match(rownames(zhangfilt2), rownames(ttable_moran)),]$logFC)
+logfcmat = cbind(ttable_zhang[match(rownames(zhangvsn), rownames(ttable_zhang)),]$logFC, ttable_moran[match(rownames(zhangvsn), rownames(ttable_moran)),]$logFC)
 rownames(logfcmat)= rownames(zhangfilt2)
 
-pmat = cbind(ttable_zhang[match(rownames(zhangfilt2), rownames(ttable_zhang)),]$P, ttable_moran[match(rownames(zhangfilt2), rownames(ttable_moran)),]$P)
-rownames(pmat)= rownames(zhangfilt2)
+pmat = cbind(ttable_zhang[match(rownames(zhangvsn), rownames(ttable_zhang)),]$P, ttable_moran[match(rownames(zhangvsn), rownames(ttable_moran)),]$P)
+rownames(pmat)= rownames(zhangvsn)
 
 
 compresmeta = cbind(metacomb[metaord,1], conv_ids[match(metacomb[metaord,1],rownames(logfcmat))], logfcmat[match(metacomb[metaord,1],rownames(logfcmat)),], pmat[match(metacomb[metaord,1],rownames(pmat)),], metacomb[metaord,2])
 colnames(compresmeta) = c("ID", "Gene Symbol", paste(c("Zhang","Moran"),"logFC"), paste(c("Zhang","Moran"),"P"), "Comb. Z")
 
 head(compresmeta)
-#            ID            Gene Symbol Zhang logFC         Moran logFC         Zhang P               
-#213920_at   "213920_at"   "CUX2"      "-1.5683104206"     "-1.5683104206"     "1.7991820716903e-13" 
-#207087_x_at "207087_x_at" "ANK1"      "-1.70222868664166" "-1.70222868664166" "2.18758321067476e-13"
-#203282_at   "203282_at"   "GBE1"      "-2.13122487826666" "-2.13122487826666" "1.78042429089719e-10"
-#209797_at   "209797_at"   "CNPY2"     "-1.02305868425"    "-1.02305868425"    "8.12649167128433e-13"
-#205391_x_at "205391_x_at" "ANK1"      "-2.05249918844167" "-2.05249918844167" "6.64898637205384e-12"
-#221509_at   "221509_at"   "DENR"      "-1.16352955708333" "-1.16352955708333" "3.05431887233395e-11"
-#            Moran P                Comb. Z            
-#213920_at   "1.7991820716903e-13"  "-7.29642343429427"
-#207087_x_at "2.18758321067476e-13" "-7.2172388962685" 
-#203282_at   "1.78042429089719e-10" "-6.9554449934437" 
-#209797_at   "8.12649167128433e-13" "-6.95527826366323"
-#205391_x_at "6.64898637205384e-12" "-6.93116982534301"
-#221509_at   "3.05431887233395e-11" "-6.91812814470966"
+#            ID            Gene Symbol Zhang logFC
+#213920_at   "213920_at"   "CUX2"      "-0.13320503152162"
+#209560_s_at "209560_s_at" "DLK1"      "-0.187751629660031"
+#209797_at   "209797_at"   "CNPY2"     "-0.101974219922499"
+#207087_x_at "207087_x_at" "ANK1"      "-0.0972989009570591"
+#201658_at   "201658_at"   "ARL1"      "-0.168902902752022"
+#221509_at   "221509_at"   "DENR"      "-0.147201639455328"
+#            Moran logFC          Zhang P                Moran P
+#213920_at   "-0.797918327851144" "0.00963466585525721"  "2.57394047413532e-15"
+#209560_s_at "-1.65067838731633"  "0.0156686595291923"   "6.42588667216408e-13"
+#209797_at   "-0.255908124278469" "0.0229181484166373"   "6.60726526427145e-13"
+#207087_x_at "-0.703330603140983" "0.0126955891625445"   "7.32268084698888e-12"
+#201658_at   "-0.171032345312142" "1.85370898456861e-06" "6.65341664567245e-07"
+#221509_at   "-0.244690113255756" "0.00470213225252706"  "5.97092970059967e-11"
+#            Comb. Z
+#213920_at   "-7.76094142488226"
+#209560_s_at "-7.09857754299762"
+#209797_at   "-7.00597359347099"
+#207087_x_at "-6.88313081863946"
+#201658_at   "-6.86671103454228"
+#221509_at   "-6.85712062149111"
+
 
 dim(compresmeta)
-#[1] 4486    6
+#[1]  3790    7
 
 
 # save datasets to continue with pathway analysis tomorrow
