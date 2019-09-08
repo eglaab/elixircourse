@@ -419,7 +419,7 @@ design <- model.matrix(~ -1+factor(zhang_label))
 colnames(design) <- unique(zhang_label)
 
 # compute simple linear model fit to microarray data (not robust)
-fit <- lmFit(zhangfilt2, design)
+fit <- lmFit(zhangvsn, design)
 
 contrast.matrix = makeContrasts(parkinson-control, levels=design)
 fit2 = contrasts.fit(fit, contrast.matrix)
@@ -431,12 +431,13 @@ ttable_zhang <- topTable(eb, n = nrow(zhangfilt2))
 
 head(ttable_zhang)
 #                 logFC  AveExpr         t      P.Value  adj.P.Val        B
-#215812_s_at  0.4977913 7.653852  6.433649 8.067726e-07 0.01513624 5.470990
-#210854_x_at  0.5029501 8.069007  6.229166 1.358546e-06 0.01513624 5.030257
-#201658_at   -0.9458851 9.560856 -6.044963 2.180163e-06 0.01619352 4.628313
-#219718_at   -0.4486547 7.372100 -5.670098 5.761279e-06 0.01907364 3.797219
-#213843_x_at  0.4714778 8.020686  5.643794 6.170385e-06 0.01907364 3.738298
-#221806_s_at  0.9908612 8.231832  5.612125 6.702084e-06 0.01907364 3.667263
+#210854_x_at  0.1101789 2.725293  6.220791 1.181290e-06 0.01123935 5.400388
+#215812_s_at  0.1149640 2.632424  6.216871 1.193473e-06 0.01123935 5.391142
+#201658_at   -0.1689029 3.015663 -6.049108 1.853709e-06 0.01123935 4.993867
+#34406_at     0.1994055 2.966594  5.939872 2.472431e-06 0.01123935 4.733540
+#219718_at   -0.1102173 2.564145 -5.932364 2.521957e-06 0.01123935 4.715601
+#221806_s_at  0.2063671 2.755030  5.839354 3.225458e-06 0.01197881 4.492917
+
 
 
 # Limma analysis of Moran dataset
@@ -444,7 +445,7 @@ design <- model.matrix(~ -1+factor(moran_outcome_final))
 colnames(design) <- unique(moran_outcome_final)
 
 # compute simple linear model fit to microarray data (not robust)
-fit <- lmFit(moranfilt, design)
+fit <- lmFit(moranvsn, design)
 
 contrast.matrix = makeContrasts(parkinson-control, levels=design)
 fit2 = contrasts.fit(fit, contrast.matrix)
@@ -455,13 +456,13 @@ eb <- eBayes(fit2)
 ttable_moran <- topTable(eb, n = nrow(moranfilt)) 
 
 head(ttable_moran)
-#                logFC  AveExpr          t      P.Value    adj.P.Val        B
-#213920_at   -1.568310 4.203679 -11.013076 1.799182e-13 2.437296e-09 20.29504
-#207087_x_at -1.702229 4.980834 -10.940202 2.187583e-13 2.437296e-09 20.11309
-#209797_at   -1.023059 7.413173 -10.457428 8.126492e-13 6.036087e-09 18.88803
-#209560_s_at -3.335964 4.377195  -9.804797 5.026856e-12 2.800336e-08 17.17761
-#205391_x_at -2.052499 5.183501  -9.706350 6.648986e-12 2.963187e-08 16.91421
-#205390_s_at -1.427009 7.179817  -9.612307 8.695324e-12 3.229298e-08 16.66129
+#                 logFC  AveExpr          t      P.Value    adj.P.Val        B
+#213920_at   -0.7979183 1.401006 -12.579240 2.573940e-15 5.735512e-11 24.12441
+#209560_s_at -1.6506784 1.248417 -10.486284 6.425887e-13 4.907656e-09 19.05202
+#209797_at   -0.2559081 2.571147 -10.476246 6.607265e-13 4.907656e-09 19.02614
+#207087_x_at -0.7033306 1.768834  -9.625885 7.322681e-12 4.079282e-08 16.77989
+#205390_s_at -0.3637183 2.505865  -9.474218 1.135632e-11 5.061057e-08 16.36818
+#205357_s_at -1.2789818 1.419303  -8.973938 4.928804e-11 1.830476e-07 14.98695
 
 #
 # Meta-analysis
