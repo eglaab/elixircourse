@@ -91,9 +91,9 @@ if(!require('metaMA'))
 if(!require('clusterProfiler'))
 {
 	if (!requireNamespace("BiocManager", quietly = TRUE))
-	    install.packages("BiocManager", suppressUpdates=TRUE)
+	    install.packages("BiocManager")
 
-	BiocManager::install("clusterProfiler")
+	BiocManager::install("clusterProfiler", suppressUpdates=TRUE)
 	require('clusterProfiler')
 }
 
