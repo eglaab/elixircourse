@@ -389,7 +389,6 @@ head(fisher_kegg_zhang)
 
 fisher_biocarta_zhang <- enricher(zhang_degs, universe = mapped_symbols, pAdjustMethod = "BH", pvalueCutoff=1.0, qvalueCutoff = 0.2, TERM2GENE = msigdb_biocarta_pathways)
 head(fisher_biocarta_zhang)
-# no gene can be mapped
 
 fisher_reactome_zhang <- enricher(zhang_degs, universe = mapped_symbols, pAdjustMethod = "BH", pvalueCutoff=1.0, qvalueCutoff = 0.2, TERM2GENE = msigdb_reactome_pathways)
 head(fisher_reactome_zhang)
@@ -410,7 +409,6 @@ head(fisher_kegg_moran)
 
 fisher_biocarta_moran <- enricher(moran_degs, universe = mapped_symbols, pAdjustMethod = "BH", pvalueCutoff=1.0, qvalueCutoff = 0.2, TERM2GENE = msigdb_biocarta_pathways)
 head(fisher_biocarta_moran)
-# no gene can be mapped
 
 fisher_reactome_moran <- enricher(moran_degs, universe = mapped_symbols, pAdjustMethod = "BH", pvalueCutoff=1.0, qvalueCutoff = 0.2, TERM2GENE = msigdb_reactome_pathways)
 head(fisher_reactome_moran)
