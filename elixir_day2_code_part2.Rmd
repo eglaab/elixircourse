@@ -1,0 +1,195 @@
+---
+title: "Supervised Learning"
+author: "Armin Rauschenberger"
+date: "`r format(Sys.time(),'%Y-%m-%d')`"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=TRUE,eval=FALSE)
+```
+
+# Data
+
+Set your working directory to the folder containing the preprocessed data. (Replace "moran" by "zhang" to analyse the other data set.) Here we transpose the feature matrix such that samples are in the rows, and features are in the columns.
+
+```{r data}
+#install.packages(c("glmnet","randomForest","e1071"))
+#rm(list=ls())
+load("moran_preprocessed.RData")
+y <- 1*grepl("P|parkinson",moran_outcome_final)
+X <- t(moranvsn)
+```
+
+__Dimensionality__: The vector `y` contains the outcome, and the matrix `X` contains the features. Examine the dimensionality of `y` and `X`. How many samples? How many features? Is the setting low-dimensional or high-dimensional?
+
+```{r dimensionality}
+n <- length(y)
+dim(X)
+```
+
+__Outcome__: Examine the vector `y`. Is this a continuous, binary, count or survival outcome? We can use linear regression ("gaussian") for continuous outcomes, logistic regression ("binomial") for binary outcomes, Poisson regression for count outcomes, and Cox regression for survival outcomes (*wrong choice -> disaster*). How many cases/controls?
+
+```{r outcome}
+unique(y)
+table(y)
+```
+
+# Hold-out
+
+__Hold-out__: Here we split the samples into one set for training the model, and another set for testing the model. How many samples are in each set? What is the problem about having few training samples? What is the problem about having few testing samples?
+
+```{r holdout}
+set.seed(1)
+fold <- rbinom(n=n,size=1,prob=0.2)
+
+# training
+y0 <- y[fold==0]
+X0 <- X[fold==0,]
+
+# testing
+y1 <- y[fold==1]
+X1 <- X[fold==1,]
+```
+
+__Model__: The function `cv.glmnet` estimates beta (regression coefficients) and tunes lambda (regularisation parameter). Use the argument `family` to define the distribution (gaussian, binomial, etc.). Use the argument `alpha` to choose among ridge (alpha=0) and lasso (alpha=1), and their combination (0<alpha<1). (Default performance measure: `type`="deviance".)
+
+```{r model}
+set.seed(1)
+net <- glmnet::cv.glmnet(x=X0,y=y0,family="binomial",alpha=1)
+```
+
+We can actually extract the model at different levels of regularisation. Typically, "lambda -> 0" implies overfitting, and "lambda -> infinity" implies underfitting. The output includes the optimal lambda:
+
+```{r lambda}
+net$lambda.min
+```
+
+__Coefficients__: The function `coef` extracts the estimates coefficients. How many non-zero coefficients? What is the difference between lasso and ridge? (Run `cv.glmnet` for lasso and ridge.) What happens if we extract the model at an extremely large lambda? How many non-zero betas? What is special about the first one?
+
+```{r coef}
+beta <- coef(net,s="lambda.min")
+sum(beta!=0)
+#beta <- coef(net,s=Inf)
+```
+
+__Fitted values__: The function `predict` computes the fitted or predicted values ("fitted" for training data, "predicted" for testing data). Does the model fit well to the training data?
+ 
+```{r fitted}
+y0_hat <- predict(net,newx=X0,type="response",s="lambda.min")
+boxplot(y0_hat~y0)
+```
+
+__Predicted values__: For logistic regression, use the argument `type` to choose among predicted probabilities (type="response") and predicted classes (type="class"). Does the model fit well to the test data?
+
+```{r predict}
+y1_hat <- predict(net,newx=X1,type="response",s="lambda.min")
+boxplot(y1_hat~y1)
+```
+
+How are the predicted probabilities and predicted classes related? (Can you calculate the predicted probabilities from `beta` and `X1`?)
+
+```{r extra}
+#table(prob>0.5,class)
+#1/(1+exp(-beta[1] - X1 %*% as.numeric(beta[-1])))
+```
+
+__Performance measurement__: For the testing data, how do the observed classes and predicted probabilities compare? Perfect predictions leads to a misclassification rate (MCR) of 0, and an area under the curve (AUC) of 1. Can you calculate the misclassification rate? Does it only care about the classes or also about the probabilities? What is "strange" about the AUC?
+
+```{r loss}
+cbind(y1,y1_hat)
+mean(round(y1_hat)!=y1) # MCR
+glmnet::auc(y=y1,prob=y1_hat) # AUC
+mean(-2*(y1*log(y1_hat)+(1-y1)*log(1-y1_hat))) # deviance 
+mean((y1-y1_hat)^2) # MSE
+mean(abs(y1-y1_hat)) # MAE
+```
+
+# Cross-validation
+
+Fold identifiers:
+
+```{r fold}
+set.seed(1)
+k <- 5 # number of folds
+fold <- rep(x=NA,times=n)
+fold[y==0] <- sample(x=rep(x=seq_len(k),length.out=sum(y==0)))
+fold[y==1] <- sample(x=rep(x=seq_len(k),length.out=sum(y==1)))
+table(fold,y)
+
+#fold <- sample(seq_len(k),size=n,replace=TRUE) # unbalanced
+#k <- n; fold <- seq_len(k) # leave-one-out cross-validation
+```
+
+Cross-validation:
+
+```{r cv}
+set.seed(1)
+y_hat <- rep(NA,times=n)
+for(i in seq_len(k)){
+  y0 <- y[fold!=i]  # training
+  X0 <- X[fold!=i,] # training
+  X1 <- X[fold==i,] # testing
+  net <- glmnet::cv.glmnet(x=X0,y=y0,family="binomial",alpha=1)
+  y_hat[fold==i] <- predict(net,newx=X1,type="response",s="lambda.min")
+}
+```
+
+Performance measurement:
+
+```{r cv.loss}
+table(y,y_hat=round(y_hat))
+mean(round(y_hat)!=y) # MCR
+glmnet::auc(y=y,prob=y_hat) # AUC
+mean(-2*(y*log(y_hat)+(1-y)*log(1-y_hat))) # deviance 
+mean((y-y_hat)^2) # MSE
+mean(abs(y-y_hat)) # MAE
+```
+
+# Comments
+
+*You can use random forests for classification and regression. For classification, provide the outcome as a factor. Double-check whether you did the right thing (rf$type).*
+
+To estimate the predictive performance, we could use the cross-validated error or the out-of-bag error. The idea is the same: we use different samples for training and testing the model. As random forests provide the out-of-bag error, we do not need to compute the cross-validated error.
+
+```{r rf}
+rf <- randomForest::randomForest(x=X,y=as.factor(y),norm.votes=TRUE)
+y_hat <- rf$predicted
+table(y,y_hat) # =rf$confusion
+mean(y_hat!=y) # MCR
+rf$type
+```
+
+The standard implementation for support vector machines includes an option to automatically compute the cross-validated error. To compare different models, however, we should not only use the same number of folds, but also the same fold identifiers. This works in the cross-validation scheme from above.
+
+```{r svm}
+svm <- e1071::svm(x=X,y=as.factor(y),kernel="linear",cross=5)
+(100-svm$tot.accuracy)/100 # MCR
+```
+
+As an exercise, adapt the cross-validation scheme from above to random forests or support vector machines, and compare the performance with penalised regression. (Keep in mind that random forests would also provide the out-of-bag error.)
+
+```{r cv.rf}
+#rf <- randomForest::randomForest(x=X0,y=as.factor(y0))
+#y_hat[fold==i] <- 1*(predict(rf,newdata=X1)==1)
+
+#svm <- e1071::svm(x=X0,y=as.factor(y0),kernel="linear")
+#y_hat[fold==i] <- 1*(predict(svm,newdata=X1)==1)
+```
+
+The standard implementations for random forests (`randomForest`) and support vector machines (`e1071`) do not provide predicted probabilities by default. For random forests, fit with `norm.votes=TRUE` and predict with `type="prob"`. For support vector machines, fit with `probability=TRUE` and predict with `probability=TRUE`.
+
+```{r cv.svm}
+#rf <- randomForest::randomForest(x=X0,y=as.factor(y0),norm.votes=TRUE)
+#y_hat[fold==i] <- predict(rf,newdata=X1,type="prob")[,2]
+
+#svm <- e1071::svm(x=X0,y=as.factor(y0),kernel="linear",probability=TRUE)
+#y_hat[fold==i] <- attributes(predict(svm,newdata=X1,probability=TRUE))$probabilities[,2]
+```
+
+<!--
+https://github.com/eglaab/elixircourse
+https://owncloud.lcsb.uni.lu/s/On0fba4vFjo7NWw (elixir2019)
+-->
