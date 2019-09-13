@@ -583,6 +583,139 @@ adjustedRandIndex(hcl2_moran, moran_outcome_final)
 # Adjusted rand index (Moran et al., hclust, k = 3).
 adjustedRandIndex(hcl3_moran, moran_outcome_final)
 
+			
+			# =============================================================================
+# Sample classification analyses
+# =============================================================================
+
+
+# Evaluation functions
+
+# sensitivity
+sensitivity <- function(tp, fn){
+  return(tp/(tp+fn))
+}
+
+# specificity
+specificity <- function(tn, fp){
+  return(tn/(tn+fp))
+}
+
+# Matthew's correlation coefficient (=MCC)
+corcoeff <- function(tp, tn, fp, fn){
+	return(  ((tp*tn)-(fp*fn))/(sqrt((tn+fn)*(tn+fp)*(tp+fn)*(tp+fp))))
+}
+
+# Huberty's proportional chance criterion - p-value calculation for classification problems
+ppc <- function(tp, fp, tn, fn)
+{
+
+		total <- tp+fp+fn+tn
+
+		c_pro <- ((tp+fn)/total)*((tp+fp)/total) + ((tn+fp)/total) *((tn+fn)/total)
+
+		acc <- (tp+tn)/total
+
+		cat('\nc_pro:',c_pro,'acc:',acc,'\n')
+
+
+		pval <- NULL
+		if(c_pro > acc)
+		{
+		 pval <- 1
+		} else if(c_pro != 1)
+		{
+			z <- (acc-c_pro)/sqrt(c_pro*(1-c_pro)/total)
+
+			pval <- pnorm(-abs(z))
+			cat('\np-value: ',pval,'\n')
+			cat('\np-value (rounded): ',format(pval,digits=2),'\n')
+
+		} else {
+		  pval <- 1
+		}
+
+  return (pval)
+}
+
+
+# make the outcome variables numeric
+
+zhang_numout = ifelse(zhang_outcome_final=="disease state: Control",0,1)
+moran_numout = ifelse(moran_outcome_final=="control",0,1)
+
+set.seed(1234)
+
+require('randomForest')
+
+# Build Random Forest sample classification model for Zhang et al. data using 250 decision trees
+rfmod_zhang = randomForest(t(zhangvsn), factor(zhang_numout), ntree=250, keep.forest=TRUE)
+
+# show model evluation based on out-of-bag samples
+rfmod_zhang
+
+# compute performance statistics
+sensitivity(rfmod_zhang$confusion[2,2], rfmod_zhang$confusion[2,1])
+specificity(rfmod_zhang$confusion[1,1], rfmod_zhang$confusion[1,2])
+corcoeff(rfmod_zhang$confusion[2,2], rfmod_zhang$confusion[1,1], rfmod_zhang$confusion[1,2], rfmod_zhang$confusion[2,1])
+ppc(rfmod_zhang$confusion[2,2], rfmod_zhang$confusion[1,2], rfmod_zhang$confusion[1,1], rfmod_zhang$confusion[2,1])
+
+# which variables were most informative for the prediction (multivariate feature selction - see day 1 lecture):
+head(rfmod_zhang$importance[order(rfmod_zhang$importance, decreasing=T),])
+
+
+# Random Forest model for Moran et al. data using 250 trees
+rfmod_moran = randomForest(t(moranvsn), factor(moran_numout), ntree=250, keep.forest=TRUE)
+
+# show model evluation based on out-of-bag samples
+rfmod_moran
+
+# compute performance statistics
+sensitivity(rfmod_moran$confusion[2,2], rfmod_moran$confusion[2,1])
+specificity(rfmod_moran$confusion[1,1], rfmod_moran$confusion[1,2])
+corcoeff(rfmod_moran$confusion[2,2], rfmod_moran$confusion[1,1], rfmod_moran$confusion[1,2], rfmod_moran$confusion[2,1])
+ppc(rfmod_moran$confusion[2,2], rfmod_moran$confusion[1,2], rfmod_moran$confusion[1,1], rfmod_moran$confusion[2,1])
+
+
+# which variables were most informative for the prediction (multivariate feature selction - see day 1 lecture):
+head(rfmod_moran$importance[order(rfmod_moran$importance, decreasing=T),])
+
+
+
+# Support vector machine classification
+
+# Run linear SVM - evaluate using leave-one-out cross-validation (Zhang et a.)
+svmmod = svm(t(zhangvsn), factor(zhang_numout), kernel="linear", cross=ncol(zhangvsn))
+
+# show the cross-validated accuracy (as percentage)
+svmmod$tot.accuracy
+
+# confusion matrix
+conf_zhang = table(zhang_numout, ifelse(svmmod$accuracies==100,zhang_numout,1-zhang_numout))
+conf_zhang
+
+# compute performance statistics
+sensitivity(conf_zhang[2,2], conf_zhang[2,1])
+specificity(conf_zhang[1,1], conf_zhang[1,2])
+corcoeff(conf_zhang[2,2], conf_zhang[1,1], conf_zhang[1,2], conf_zhang[2,1])
+ppc(conf_zhang[2,2], conf_zhang[1,2], conf_zhang[1,1], conf_zhang[2,1])
+
+
+# Run linear SVM - evaluate using leave-one-out cross-validation (Moran et a.)
+svmmod = svm(t(moranvsn), factor(moran_numout), kernel="linear", cross=ncol(moranvsn))
+
+# show the cross-validated accuracy (as percentage)
+svmmod$tot.accuracy
+
+# confusion matrix
+conf_moran = table(moran_numout, ifelse(svmmod$accuracies==100,moran_numout,1-moran_numout))
+conf_moran
+
+sensitivity(conf_moran[2,2], conf_moran[2,1])
+specificity(conf_moran[1,1], conf_moran[1,2])
+corcoeff(conf_moran[2,2], conf_moran[1,1], conf_moran[1,2], conf_moran[2,1])
+ppc(conf_moran[2,2], conf_moran[1,2], conf_moran[1,1], conf_moran[2,1])
+			
 
 #
 # Other online resources for machine learning analysis of omics data:
