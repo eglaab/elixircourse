@@ -449,7 +449,6 @@ ttable_moran <- topTable(eb, n = nrow(moranfilt))
 
 head(ttable_moran)
 
-
 #
 # Meta-analysis
 #
@@ -461,7 +460,7 @@ metacomb <- cbind(rownames(zhangvsn)[metarank$Meta], metarank$TestStatistic[meta
 metaord <- order(abs(as.numeric(metacomb[,2])), decreasing=TRUE)
 
 logfcmat = cbind(ttable_zhang[match(rownames(zhangvsn), rownames(ttable_zhang)),]$logFC, ttable_moran[match(rownames(zhangvsn), rownames(ttable_moran)),]$logFC)
-rownames(logfcmat)= rownames(zhangfilt2)
+rownames(logfcmat)= rownames(zhangvsn)
 
 pmat = cbind(ttable_zhang[match(rownames(zhangvsn), rownames(ttable_zhang)),]$P, ttable_moran[match(rownames(zhangvsn), rownames(ttable_moran)),]$P)
 rownames(pmat)= rownames(zhangvsn)
