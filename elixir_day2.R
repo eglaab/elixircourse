@@ -1,3 +1,165 @@
+#
+# R code for the pathway, network and machine learning analyses in the ELIXIR course "Statistics & Machine Learning"
+#
+# Required input data in the working folder:
+#
+# - Affymetrix annotations for the HG-U133A array can be obtained via free registration on the Affymetrix website: http://www.affymetrix.com/support/technical/byproduct.affx?product=hgu133
+#
+# - Pathway annotations from MSigDb can be obtained from http://software.broadinstitute.org/gsea/msigdb/ after free registration
+
+#
+# Package installations
+# (Please make sure you have a recent version of R > 3.4 - otherwise install the current software as follows:
+# - Install the current version of R (3.6) for your operating system from https://ftp.gwdg.de/pub/misc/cran/
+# - Install the current version of R-Studio (1.2) from: https://www.rstudio.com/products/rstudio/download/
+#
+
+#
+# Installation and loading of R-packages
+#
+
+## Default repo
+local({r <- getOption("repos")
+       r["CRAN"] <- "https://cloud.r-project.org"
+       options(repos=r)
+})
+
+update.packages(ask = FALSE) # , dependencies = c('Suggests'))
+
+# load annotation package for gene ID conversion
+
+# for old R version:
+# source("http://bioconductor.org/biocLite.R")
+# biocLite("hgu133a.db")
+
+if(!require('hgu133a.db'))
+{
+	if (!requireNamespace("BiocManager", quietly = TRUE))
+	    install.packages("BiocManager")
+	BiocManager::install("hgu133a.db", suppressUpdates=TRUE, ask = FALSE)
+	require('hgu133a.db')
+}
+
+# load R-packages for quality control
+
+if(!require('arrayQualityMetrics'))
+{
+  if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+  BiocManager::install("arrayQualityMetrics", suppressUpdates=TRUE, ask = FALSE)
+  install.packages("gridSVG")
+  # install.packages("https://cran.r-project.org/src/contrib/Archive/gridSVG/gridSVG_1.4-3.tar.gz", repos=NULL)
+  require('arrayQualityMetrics')
+}
+if(!require('Biobase'))
+{
+  if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+  BiocManager::install("Biobase", suppressUpdates=TRUE, ask = FALSE)
+  require('Biobase')
+}
+
+# load R-packages for power calculation
+if(!require('impute'))
+{
+ if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+ BiocManager::install("impute", suppressUpdates=TRUE, ask = FALSE)
+ require('impute')
+}
+
+if(!require('samr'))
+{
+  install.packages("samr")
+  require('samr')
+}
+options(error=NULL)
+
+# load R-package for Variance stabilizing normalization
+if(!require('vsn'))
+{
+	if (!requireNamespace("vsn", quietly = TRUE))
+	    install.packages("BiocManager")
+	BiocManager::install("vsn", suppressUpdates=TRUE, ask = FALSE)
+	require('vsn')
+}
+
+# load R-package for meta-analysis
+if(!require('metaMA'))
+{
+	install.packages('metaMA')
+	require('metaMA')
+}
+
+
+# install R-package for pathway analysis
+if(!require('clusterProfiler'))
+{
+	if (!requireNamespace("BiocManager", quietly = TRUE))
+	    install.packages("BiocManager")
+
+	BiocManager::install("clusterProfiler", suppressUpdates=TRUE, ask = FALSE)
+	require('clusterProfiler')
+}
+
+if(!require('GSEABase'))
+{
+	if (!requireNamespace("BiocManager", quietly = TRUE))
+	    install.packages("BiocManager")
+
+	BiocManager::install("GSEABase", suppressUpdates=TRUE, ask = FALSE)
+	require('GSEABase')
+}
+
+# install Limma package for statistical analyses
+if(!require('limma'))
+{
+	if (!requireNamespace("BiocManager", quietly = TRUE))
+	    install.packages("BiocManager")
+
+	BiocManager::install("limma", suppressUpdates=TRUE, ask = FALSE)
+	require('limma')
+}
+
+# install R-packages for clustering
+if(!require('cluster'))
+{
+	install.packages('cluster')
+	require('cluster')
+}
+
+if(!require('mclust'))
+{
+	install.packages('mclust')
+	require('mclust')
+}
+
+# install R-packages for classification
+if(!require('randomForest'))
+{
+	install.packages('randomForest')
+	require('randomForest')
+}
+
+if(!require('e1071'))
+{
+	install.packages('e1071')
+	require('e1071')
+}
+
+#
+# End of package installations
+#
+
+# set the location of your working directory (note that there are differences between Windows & Mac concerning the use of back slash "\" vs. forward slash "/")
+
+# format for Mac & Linux systems
+setwd('/home/leon/Documents/Teaching/Elixir-stats_ML/wr')
+
+# format for Windows
+#setwd('C:/set/your/current/working/directory/here')
+
 
 
 # load datasets from day 1
@@ -21,7 +183,7 @@ all(rownames(zhangvsn) == rownames(moranvsn))
 # unzip Affymetrix annotation file (downloaded from Moodle into the working directory, see above):
 #
 # In Windows:
-# - unzip the file "HG-U133A.na35.annot.csv.zip" manually
+# - unzip the file "HG-U133A.na36.annot.csv.zip" manually
 #
 # In Mac/Linux:
 # - use the following line of code:
@@ -29,7 +191,7 @@ system('unzip HG-U133A.na36.annot.csv.zip')
 
 
 # read annotations file (ignoring comments)
-annot = read.csv("HG-U133A.na35.annot.csv", comment.char="#")
+annot = read.csv("HG-U133A.na36.annot.csv", comment.char="#")
 head(annot)
 
 # map probes to microarray rownames
@@ -583,8 +745,9 @@ adjustedRandIndex(hcl2_moran, moran_outcome_final)
 # Adjusted rand index (Moran et al., hclust, k = 3).
 adjustedRandIndex(hcl3_moran, moran_outcome_final)
 
-			
-			# =============================================================================
+
+
+# =============================================================================
 # Sample classification analyses
 # =============================================================================
 
@@ -715,7 +878,7 @@ sensitivity(conf_moran[2,2], conf_moran[2,1])
 specificity(conf_moran[1,1], conf_moran[1,2])
 corcoeff(conf_moran[2,2], conf_moran[1,1], conf_moran[1,2], conf_moran[2,1])
 ppc(conf_moran[2,2], conf_moran[1,2], conf_moran[1,1], conf_moran[2,1])
-			
+
 
 #
 # Other online resources for machine learning analysis of omics data:
@@ -726,4 +889,3 @@ ppc(conf_moran[2,2], conf_moran[1,2], conf_moran[1,1], conf_moran[2,1])
 
 # For reproducibility: show and save information on all loaded R package versions
 sessionInfo()
-
