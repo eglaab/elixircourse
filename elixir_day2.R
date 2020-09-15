@@ -155,7 +155,7 @@ if(!require('e1071'))
 # set the location of your working directory (note that there are differences between Windows & Mac concerning the use of back slash "\" vs. forward slash "/")
 
 # format for Mac & Linux systems
-setwd('/home/leon/Documents/Teaching/Elixir-stats_ML/wr')
+setwd('/set/your/current/directory')
 
 # format for Windows
 #setwd('C:/set/your/current/working/directory/here')
@@ -291,15 +291,12 @@ colnames(zhang_symb) = colnames(zhangvsn)
 
 # show the dimensions of the new gene expression matrix
 dim(zhang_symb)
-# 13238    26
-# the matrix has less rows than the probe expression matrix, as expected
 
 # Run the conversion from probe matrix to gene matrix (Moran data)
 moran_symb = probe2genemat(moranvsn, mapped_symbols)
 colnames(moran_symb) = colnames(moranvsn)
 
 dim(moran_symb)
-# 13238    39
 
 
 
@@ -485,7 +482,6 @@ head(gsea_positional_moran)
 # Network-based pathway analysis: EnrichNet
 #
 
-
 #
 # - Goto www.enrichnet.org
 # - Copy up top 100 genes to the EnrichNet web-interface (using the code below to move gene names to the clipboard)
@@ -526,7 +522,7 @@ write.table(moran_degs[1:100], "clipboard", sep = '\t', row.names = FALSE, col.n
 
 # =============================================================================
 #
-# Part III : Unsupervised analyses
+#   Unsupervised analyses
 #   Objective: perform sample clustering on the preprocessed datasets.
 #
 # =============================================================================
