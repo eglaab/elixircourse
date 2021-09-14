@@ -21,20 +21,8 @@ local({r <- getOption("repos")
 # update package installation only if needed
 # update.packages(ask = FALSE, dependencies = c('Suggests'))
 
-# load annotation package for gene ID conversion
-
-# for old R version:
-# source("http://bioconductor.org/biocLite.R")
-# biocLite("hgu133a.db")
-#if(!require('hgu133a.db'))
-#{
-#	if (!requireNamespace("BiocManager", quietly = TRUE))
-#	    install.packages("BiocManager")
-#	BiocManager::install("hgu133a.db", suppressUpdates=TRUE, ask = FALSE)
-#	require('hgu133a.db')
-#}
-
 # load R-packages for quality control
+
 if(!require('arrayQualityMetrics'))
 {
   if (!requireNamespace("BiocManager", quietly = TRUE))
@@ -453,8 +441,9 @@ eb <- eBayes(fit2)
 # extract the ranking table and show the top-ranked genes
 ttable_zhang <- topTable(eb, n = nrow(zhangfilt2)) 
 
-head(ttable_zhang)
+head(ttable_zhang, 10)
 
+print(length(which(ttable_zhang$adj.P.Val < 0.05)))
 
 # Limma analysis of Moran dataset
 design <- model.matrix(~ -1+factor(moran_outcome_final))
@@ -494,8 +483,6 @@ compresmeta = cbind(metacomb[metaord,1], conv_ids[match(metacomb[metaord,1],rown
 colnames(compresmeta) = c("ID", "Gene Symbol", paste(c("Zhang","Moran"),"logFC"), paste(c("Zhang","Moran"),"P"), "Comb. Z")
 
 head(compresmeta)
-
-
 dim(compresmeta)
 
 
