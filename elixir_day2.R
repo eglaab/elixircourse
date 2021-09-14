@@ -24,7 +24,7 @@ local({r <- getOption("repos")
        options(repos=r)
 })
 
-update.packages(ask = FALSE) # , dependencies = c('Suggests'))
+#update.packages(ask = FALSE) # , dependencies = c('Suggests'))
 
 # load annotation package for gene ID conversion
 
