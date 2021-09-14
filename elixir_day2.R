@@ -155,7 +155,7 @@ if(!require('e1071'))
 # set the location of your working directory (note that there are differences between Windows & Mac concerning the use of back slash "\" vs. forward slash "/")
 
 # format for Mac & Linux systems
-setwd('/set/your/current/directory')
+#setwd('/set/your/current/directory')
 
 # format for Windows
 #setwd('C:/set/your/current/working/directory/here')
