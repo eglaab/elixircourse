@@ -26,17 +26,15 @@ local({r <- getOption("repos")
 # for old R version:
 # source("http://bioconductor.org/biocLite.R")
 # biocLite("hgu133a.db")
-
-if(!require('hgu133a.db'))
-{
-	if (!requireNamespace("BiocManager", quietly = TRUE))
-	    install.packages("BiocManager")
-	BiocManager::install("hgu133a.db", suppressUpdates=TRUE, ask = FALSE)
-	require('hgu133a.db')
-}
+#if(!require('hgu133a.db'))
+#{
+#	if (!requireNamespace("BiocManager", quietly = TRUE))
+#	    install.packages("BiocManager")
+#	BiocManager::install("hgu133a.db", suppressUpdates=TRUE, ask = FALSE)
+#	require('hgu133a.db')
+#}
 
 # load R-packages for quality control
-
 if(!require('arrayQualityMetrics'))
 {
   if (!requireNamespace("BiocManager", quietly = TRUE))
@@ -152,6 +150,8 @@ if(!require('e1071'))
 
 # format for Mac & Linux systems
 setwd('/Users/set/your/current/working/directory/here')
+# e.g.:
+# setwd('/Users/enrico.glaab/Downloads')
 
 # format for Windows
 setwd('C:/set/your/current/working/directory/here')
@@ -210,9 +210,32 @@ table(zhang_outcomefilt)
 #           disease state: Control disease state: Parkinsons disease 
 #                               18                                11
 
-# convert Affymetrix probe set IDs to gene symbols
-conv_ids <- mapIds(hgu133a.db, keys=as.character(rownames(zhangfilt)), c("SYMBOL"), keytype="PROBEID")
-head(conv_ids)
+
+#
+# unzip Affymetrix annotation file (downloaded into the working directory, see above):
+#
+# In Windows:
+# - unzip the file "HG-U133A.na36.annot.csv.zip" manually
+#
+# In Mac/Linux:
+# - use the following line of code:
+# system('unzip HG-U133A.na36.annot.csv.zip')
+
+
+# read annotations file (ignoring comments)
+annot = read.csv("HG-U133A.na36.annot.csv", comment.char="#")
+
+# map probes to microarray rownames
+mapids = match(rownames(zhangfilt), annot$Probe.Set.ID)
+
+# check if all IDs were mapped successfully
+any(is.na(mapids))
+#[1] FALSE
+# ok, no missing IDs
+
+# extract gene symbols corresponding to microarray Probe IDs (take always the first symbol mapped)
+conv_ids = sapply( as.character(annot$Gene.Symbol[mapids]) , function(x) strsplit(x, " /// ")[[1]][1])
+
 
 
 #
