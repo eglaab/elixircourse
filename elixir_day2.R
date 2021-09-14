@@ -205,35 +205,8 @@ any(is.na(mapids))
 # extract gene symbols corresponding to microarray Probe IDs (take always the first symbol mapped)
 mapped_symbols = sapply( as.character(annot$Gene.Symbol[mapids]) , function(x) strsplit(x, " /// ")[[1]][1])
 
-
-
-# get annotations to convert Affymetrix gene IDs to official HGNC gene symbols (from hgu133a.db installed above)
-# extract the gene symbol information
-x <- hgu133aSYMBOL
-
-# Get the probe identifiers that are mapped to a gene name
-mapped_probes <- mappedkeys(x)
-
-# Convert to a list
-probes2symbol <- as.list(x[mapped_probes])
-
-# check the top of the mapping table
-head(probes2symbol)
-
-
-# extract the gene description information
-x <- hgu133aGENENAME
-
-# Get the probe identifiers that are mapped to a gene name
-mapped_probes <- mappedkeys(x)
-
-# Convert to a list
-probes2desc <- as.list(x[mapped_probes])
-
-# check the top of the gene description mapping table
-head(probes2desc)
-
-
+			
+		
 #
 # Convert expression matrix with Affymetrix IDs to Gene Symbol matrix (if multiple probes match to a gene, take the max. average value probe as representative for the gene)
 #
