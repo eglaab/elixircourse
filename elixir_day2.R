@@ -26,31 +26,6 @@ local({r <- getOption("repos")
 
 #update.packages(ask = FALSE) # , dependencies = c('Suggests'))
 
-# load annotation package for gene ID conversion
-
-# for old R version:
-# source("http://bioconductor.org/biocLite.R")
-# biocLite("hgu133a.db")
-
-if(!require('hgu133a.db'))
-{
-	if (!requireNamespace("BiocManager", quietly = TRUE))
-	    install.packages("BiocManager")
-	BiocManager::install("hgu133a.db", suppressUpdates=TRUE, ask = FALSE)
-	require('hgu133a.db')
-}
-
-# load R-packages for quality control
-
-if(!require('arrayQualityMetrics'))
-{
-  if (!requireNamespace("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
-  BiocManager::install("arrayQualityMetrics", suppressUpdates=TRUE, ask = FALSE)
-  install.packages("gridSVG")
-  # install.packages("https://cran.r-project.org/src/contrib/Archive/gridSVG/gridSVG_1.4-3.tar.gz", repos=NULL)
-  require('arrayQualityMetrics')
-}
 if(!require('Biobase'))
 {
   if (!requireNamespace("BiocManager", quietly = TRUE))
@@ -59,39 +34,6 @@ if(!require('Biobase'))
   BiocManager::install("Biobase", suppressUpdates=TRUE, ask = FALSE)
   require('Biobase')
 }
-
-# load R-packages for power calculation
-if(!require('impute'))
-{
- if (!requireNamespace("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
- BiocManager::install("impute", suppressUpdates=TRUE, ask = FALSE)
- require('impute')
-}
-
-if(!require('samr'))
-{
-  install.packages("samr")
-  require('samr')
-}
-options(error=NULL)
-
-# load R-package for Variance stabilizing normalization
-if(!require('vsn'))
-{
-	if (!requireNamespace("vsn", quietly = TRUE))
-	    install.packages("BiocManager")
-	BiocManager::install("vsn", suppressUpdates=TRUE, ask = FALSE)
-	require('vsn')
-}
-
-# load R-package for meta-analysis
-if(!require('metaMA'))
-{
-	install.packages('metaMA')
-	require('metaMA')
-}
-
 
 # install R-package for pathway analysis
 if(!require('clusterProfiler'))
@@ -155,7 +97,10 @@ if(!require('e1071'))
 # set the location of your working directory (note that there are differences between Windows & Mac concerning the use of back slash "\" vs. forward slash "/")
 
 # format for Mac & Linux systems
-#setwd('/set/your/current/directory')
+# setwd('/set/your/current/directory')
+
+# e.g.:
+# setwd('/Users/enrico.glaab/Downloads')
 
 # format for Windows
 #setwd('C:/set/your/current/working/directory/here')
@@ -187,7 +132,7 @@ all(rownames(zhangvsn) == rownames(moranvsn))
 #
 # In Mac/Linux:
 # - use the following line of code:
-system('unzip HG-U133A.na36.annot.csv.zip')
+# system('unzip HG-U133A.na36.annot.csv.zip')
 
 
 # read annotations file (ignoring comments)
@@ -205,7 +150,7 @@ any(is.na(mapids))
 # extract gene symbols corresponding to microarray Probe IDs (take always the first symbol mapped)
 mapped_symbols = sapply( as.character(annot$Gene.Symbol[mapids]) , function(x) strsplit(x, " /// ")[[1]][1])
 
-			
+
 		
 #
 # Convert expression matrix with Affymetrix IDs to Gene Symbol matrix (if multiple probes match to a gene, take the max. average value probe as representative for the gene)
@@ -858,3 +803,4 @@ ppc(conf_moran[2,2], conf_moran[1,2], conf_moran[1,1], conf_moran[2,1])
 
 # For reproducibility: show and save information on all loaded R package versions
 sessionInfo()
+
