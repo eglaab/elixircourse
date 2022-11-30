@@ -439,225 +439,367 @@ write.table(moran_degs[1:100], "clipboard", sep = '\t', row.names = FALSE, col.n
 
 
 # =============================================================================
-#
-#   Unsupervised analyses
-#   Objective: perform sample clustering on the preprocessed datasets.
+# 
+# Unsupervised analyses
+#   Objectives:
+#     - Check whether there are patterns in the microarray data.
+#     - Check whether these patterns correspond to known sample annotations.
 #
 # =============================================================================
 
+# Load libraries.
+library("cluster")
+library("mclust")
+
+# Set a seed number for the random number generator to make the results
+# reproducible.
+set.seed(20221130)
+
+# Setting the working directory (in case you start from there).
+setwd('/set/your/current/working/directory/here')
+setwd('C:/set/your/current/working/directory/here')
+
+# Load datasets from day 1.
+load(file = "moran_preprocessed.Rdata")
+load(file = "zhang_preprocessed.Rdata")
+
 # =============================================================================
+#
 # A. Prepare the data for the clustering analysis.
+#
 # =============================================================================
 
-#' @title Perform variance filtering on a gene expression matrix.
-#' @description Function to perform variance filtering of gene expression
+#' @title Perform variance filtering on a gene expression matrix.  
+#' @description Function to perform variance filtering of gene expression 
 #' matrix X to only retain the genes (rows) with the highest variance.
 #' @param X The gene expression matrix.
 #' @param filt_size The number of genes with highest variance to retain after
 #' filtering. Default value to 1000.
 #' @return The filtered matrix.
-var_filter = function(X, filt_size = 1000) {
-	local_filt_size <- min(nrow(X), as.numeric(filt_size))
-	variances <- apply(X, 1, var)
-	feat_ord  <- order(variances, decreasing = TRUE)
-	X_filt    <- (X[feat_ord, ])[1:local_filt_size, ]
-	return(X_filt)
+var_filter <- function(X, filt_size = 1000) {
+  local_filt_size <- min(nrow(X), as.numeric(filt_size))
+  variances       <- apply(X, 1, var)
+  feat_ord        <- order(variances, decreasing = TRUE)
+  X_filt          <- (X[feat_ord, ])[1:local_filt_size, ]
+  return(X_filt)
 }
 
-# Filter the expression matrices to only retain the top 2,000 genes with the
+# We check that the dimensions of the data matrices.
+dim(zhangvsn)
+dim(moranvsn)
+
+# Filter the expression matrices to only retain the top 2,000 genes with the 
 # highest variance.
-zhang_filt <- var_filter(zhangvsn, filt_size = 2000)
-moran_filt <- var_filter(moranvsn, filt_size = 2000)
+zhang_filt <- var_filter(X = zhangvsn, filt_size = 2000)
+moran_filt <- var_filter(X = moranvsn, filt_size = 2000)
 
-# We carrefully check that the dimensions are reduced to 2,000 genes.
+# We check that the matrices have indeed been reduced to 2,000 genes.
 dim(zhang_filt)
-#[1] 2000   26
 dim(moran_filt)
-#[1] 2000   39
+
+# Most algorithms will cluster rows (genes in our cases). We are more interested in
+# clustering columns (samples) so we transpose the data.
+zhang <- t(zhang_filt)
+moran <- t(moran_filt)
+rm(zhang_filt, moran_filt, zhangvsn, moranvsn)
+
+# What can also be done:
+#   - scaling the data (base::scale).
+#   - more elegant feature selection / feature extraction (e.g., PCA).
 
 # =============================================================================
+#
 # B. Perform k-means clustering.
+#
 # =============================================================================
 
-# Set a seed number for the random number generator to make the results
-# reproducible.
-set.seed(1234)
+# =============================================================================
+#   Start with the Zhang et al. dataset.
+# =============================================================================
 
-# Start with the Zhang et al. dataset.
+# Compute the distance matrix, using the Euclidean distance.
+zhang_distmat <- stats::dist(x = zhang, method = "euclidean")
 
-# Compute Euclidean distance matrix.
-distmat_zhang <- dist(t(zhang_filt), method = "euclidean")
+# Two-group clustering (k = 2) with 100 random initializations to obtain 
+# robust results.
+zhang_kmn_k2 <- stats::kmeans(x = zhang, centers = 2, nstart = 100)
+
+# Print clustering results (two clusters indexed 1 and 2).
+zhang_kmn_k2$cluster
+table(zhang_kmn_k2$cluster)
+
+# PCA plot of the clustering results for visualization.
+clusplot(zhang_distmat, zhang_kmn_k2$cluster, diss = TRUE,
+         main = "Zhang et al. - PCA clustering plot")
+
+# Now, three-group clustering (k = 3) with 100 random initializations.
+zhang_kmn_k3 <- stats::kmeans(x = zhang, centers = 3, nstart = 100)
+
+# Print clustering results (three clusters indexed 1, 2 and 3).
+zhang_kmn_k3$cluster
+table(zhang_kmn_k3$cluster)
+
+# PCA plot of the clustering results for visualization.
+clusplot(zhang_distmat, zhang_kmn_k3$cluster, diss = TRUE,
+         main = "Zhang et al. - PCA clustering plot")
+
+# =============================================================================
+#   Continue with the Moran et al. dataset.
+# =============================================================================
+
+# Compute the distance matrix, using the Euclidean distance.
+moran_distmat <- stats::dist(x = moran, method = "euclidean")
 
 # Two-group clustering (k = 2) with 100 random initializations to obtain
 # robust results.
-kclust2_zhang <- kmeans(t(zhang_filt), centers = 2, nstart = 100)
+moran_kmn_k2  <- stats::kmeans(x = moran, centers = 2, nstart = 100)
 
-# Show clustering results (two clusters indexed 1 and 2).
-kclust2_zhang$cluster
-
-# PCA plot of the clustering results for visualization.
-clusplot(distmat_zhang, kclust2_zhang$cluster, diss = TRUE,
-         main = "Zhang et al. - PCA clustering plot")
-
-# Now, three-group clustering (k = 3) with 100 random initializations to
-# obtain robust results.
-kclust3_zhang <- kmeans(t(zhang_filt), centers = 3, nstart = 100)
-
-# Show clustering results (three clusters indexed 1, 2 and 3).
-kclust3_zhang$cluster
+# Print clustering results (two clusters indexed 1 and 2).
+moran_kmn_k2$cluster
+table(moran_kmn_k2$cluster)
 
 # PCA plot of the clustering results for visualization.
-clusplot(distmat_zhang, kclust3_zhang$cluster, diss = TRUE,
-         main = "Zhang et al. - PCA clustering plot")
-
-# Continue with the Moran et al. dataset.
-
-# Compute Euclidean distance matrix
-distmat_moran <- dist(t(moran_filt), method = "euclidean")
-
-# Two-group clustering (k = 2) with 100 random initializations to obtain
-# robust results.
-kclust2_moran <- kmeans(t(moran_filt), centers = 2, nstart = 100)
-
-# Show clustering results (two clusters indexed 1 and 2):
-kclust2_moran$cluster
-
-# PCA plot of the clustering results for visualization.
-clusplot(distmat_moran, kclust2_moran$cluster, diss = TRUE,
+clusplot(moran_distmat, moran_kmn_k2$cluster, diss = TRUE,
          main = "Moran et al. - PCA clustering plot")
 
-# Now, three-group clustering (k = 3) with 100 random initializations
-# to obtain robust results.
-kclust3_moran <- kmeans(t(moran_filt), centers = 3, nstart = 100)
+# Now, three-group clustering (k = 3) with 100 random initializations.
+moran_kmn_k3 <- stats::kmeans(x = moran, centers = 3, nstart = 100)
 
 # Show clustering results (two clusters indexed 1, 2 and 3).
-kclust3_moran$cluster
+moran_kmn_k3$cluster
+table(moran_kmn_k3$cluster)
 
 # PCA plot of the clustering results for visualization.
-clusplot(distmat_moran, kclust3_moran$cluster, diss = TRUE,
+clusplot(moran_distmat, moran_kmn_k3$cluster, diss = TRUE,
          main = "Moran et al. - PCA clustering plot")
 
 # =============================================================================
-# C. Perform hierarchical clustering.
+#   Questions.
 # =============================================================================
 
-# Start with the Zhang et al. dataset.
+# ? Does increasing the number of kmeans restarts to 1,000 change anything ?
+# ? General impression from the PCA plots ?
+
+# What can also be done:
+#   - Trying more values for the parameter k.
+#   - Trying variants of k-means such as k-medoids (cluster::pam or cluster::clara).
+
+# =============================================================================
+#
+# C. Perform hierarchical clustering.
+#
+# =============================================================================
+
+# =============================================================================
+#   Start with the Zhang et al. dataset.
+# =============================================================================
 
 # Compute average linkage hierarchical clustering.
-hcldat_zhang <- hclust(distmat_zhang, method = "average")
+zhang_hcl <- stats::hclust(d = zhang_distmat, method = "average")
 
 # Show cluster dendrogram.
-plot(hcldat_zhang)
+plot(zhang_hcl)
 
 # Turn the hierarchical clustering into a "flat" clustering by cutting
-# the tree at different levels.
-hcl2_zhang <- cutree(hcldat_zhang, k = 2)
-hcl3_zhang <- cutree(hcldat_zhang, k = 3)
+# the tree at different levels (2 and 3 again).
+zhang_hcl_k2 <- stats::cutree(tree = zhang_hcl, k = 2)
+zhang_hcl_k3 <- stats::cutree(tree = zhang_hcl, k = 3)
 
-# Continue with the Moran et al. dataset.
+# Print clustering results.
+table(zhang_hcl_k2)
+table(zhang_hcl_k3)
 
-# Compute average linkage hierarchical clustering.
-hcldat_moran <- hclust(distmat_moran, method = "average")
-
-# Show cluster dendrogram
-plot(hcldat_moran)
-
-# Turn the hierarchical clustering into a "flat" clustering by cutting
-# the tree at different levels.
-hcl2_moran <- cutree(hcldat_moran, k = 2)
-hcl3_moran <- cutree(hcldat_moran, k = 3)
+# Plot the results on the PCA plot like for k-means.
+clusplot(zhang_distmat, zhang_hcl_k2, diss = TRUE,
+         main = "Zhang et al. - PCA clustering plot")
+clusplot(zhang_distmat, zhang_hcl_k3, diss = TRUE,
+         main = "Zhang et al. - PCA clustering plot")
 
 # =============================================================================
+#   Continue with the Moran et al. dataset.
+# =============================================================================
+
+# Compute average linkage hierarchical clustering.
+moran_hcl <- stats::hclust(d = moran_distmat, method = "average")
+
+# Show cluster dendrogram.
+plot(moran_hcl)
+
+# Turn the hierarchical clustering into a "flat" clustering by cutting
+# the tree at different levels.
+moran_hcl_k2 <- stats::cutree(tree = moran_hcl, k = 2)
+moran_hcl_k3 <- stats::cutree(tree = moran_hcl, k = 3)
+
+# Print clustering results.
+table(moran_hcl_k2)
+table(moran_hcl_k3)
+
+# Plot the results on the PCA plot like for k-means.
+clusplot(moran_distmat, moran_hcl_k2, diss = TRUE,
+         main = "Moran et al. - PCA clustering plot")
+clusplot(moran_distmat, moran_hcl_k3, diss = TRUE,
+         main = "Moran et al. - PCA clustering plot")
+
+# =============================================================================
+#   Questions.
+# =============================================================================
+
+# ? General impression from the PCA plots wrt k-means PCA plots?
+# ? What is the impact of changing the linkage method from "average" to "ward.D2" ?
+
+# What can also be done:
+#   - Trying more values for the parameter k.
+#   - Trying other distances (e.g., pearson correlation based).
+
+# =============================================================================
+#
 # D. Internal cluster validity assessment.
+#
 # =============================================================================
 
 # Use the average silhouette width for internal cluster validity assessment.
 
-# Start with the Zhang et al. dataset.
+# =============================================================================
+#   Start with the Zhang et al. dataset.
+# =============================================================================
 
 # Average silhouette width (Zhang et al., k-means, k = 2).
-kclust2_zhang_score <- mean((silhouette(kclust2_zhang$cluster,
-                                        distmat_zhang))[, 3])
-kclust2_zhang_score
+mean((cluster::silhouette(zhang_kmn_k2$cluster, zhang_distmat))[, 3])
 
 # Average silhouette width (Zhang et al., k-means, k = 3).
-kclust3_zhang_score <- mean((silhouette(kclust3_zhang$cluster,
-                                        distmat_zhang))[, 3])
-kclust3_zhang_score
+mean((cluster::silhouette(zhang_kmn_k3$cluster, zhang_distmat))[, 3])
 
-# Average silhouette width (Zhang et al., hclust, k = 2).
-hcl2_zhang_score    <- mean((silhouette(hcl2_zhang,
-                                        distmat_zhang))[, 3])
-hcl2_zhang_score
+# Average silhouette width (Zhang et al., hclust(avg), k = 2).
+mean((cluster::silhouette(zhang_hcl_k2,         zhang_distmat))[, 3])
 
-# Average silhouette width (Zhang et al., hclust, k = 3).
-hcl3_zhang_score    <- mean((silhouette(hcl3_zhang,
-                                        distmat_zhang))[, 3])
-hcl3_zhang_score
+# Average silhouette width (Zhang et al., hclust(avg), k = 3).
+mean((cluster::silhouette(zhang_hcl_k3,         zhang_distmat))[, 3])
 
-# Plot of silhouette widths.
-plot(silhouette(kclust3_zhang$cluster, distmat_zhang),
-     main = "Silhouette plot of best clustering result",
-     col = c("darkred", "darkgreen", "darkblue"))
+# Average silhouette width (Zhang et al., hclust(wrd), k = 2).
+mean((cluster::silhouette(zhang_hclw_k2,        zhang_distmat))[, 3])
 
-# Continue with the Moran et al. dataset.
+# Average silhouette width (Zhang et al., hclust(wrd), k = 3).
+mean((cluster::silhouette(zhang_hclw_k3,        zhang_distmat))[, 3])
+
+# Plot of silhouette widths for the first case (k-means, k = 2).
+plot(cluster::silhouette(zhang_kmn_k2$cluster, zhang_distmat),
+     main = "Silhouette plot (k-means, k = 2)",
+     col = c("darkred", "darkblue"))
+
+# =============================================================================
+#   Continue with the Moran et al. dataset.
+# =============================================================================
 
 # Average silhouette width (Moran et al., k-means, k = 2)
-kclust2_moran_score <- mean((silhouette(kclust2_moran$cluster,
-                                        distmat_moran))[, 3])
-kclust2_moran_score
+mean((cluster::silhouette(moran_kmn_k2$cluster, moran_distmat))[, 3])
 
 # Average silhouette width (Moran et al., k-means, k = 3)
-kclust3_moran_score <- mean((silhouette(kclust3_moran$cluster,
-                                        distmat_moran))[, 3])
-kclust3_moran_score
+mean((cluster::silhouette(moran_kmn_k3$cluster, moran_distmat))[, 3])
 
-# Average silhouette width (Moran et al., hclust, k = 2)
-hcl2_moran_score    <- mean((silhouette(hcl2_moran,
-                                        distmat_moran))[, 3])
-hcl2_moran_score
+# Average silhouette width (Moran et al., hclust(avg), k = 2)
+mean((cluster::silhouette(moran_hcl_k2,         moran_distmat))[, 3])
 
-# Average silhouette width (Moran et al., hclust, k = 3)
-hcl3_moran_score    <- mean((silhouette(hcl3_moran,
-                                        distmat_moran))[, 3])
-hcl3_moran_score
+# Average silhouette width (Moran et al., hclust(avg), k = 3)
+mean((cluster::silhouette(moran_hcl_k3,         moran_distmat))[, 3])
 
-# Plot of silhouette widths.
-plot(silhouette(kclust2_moran$cluster, distmat_moran),
-     main = "Silhouette plot of best clustering result",
-     col = c("darkorange", "darkgrey"))
+# Average silhouette width (Moran et al., hclust(wrd), k = 2)
+mean((cluster::silhouette(moran_hclw_k2,        moran_distmat))[, 3])
+
+# Average silhouette width (Moran et al., hclust(wrd), k = 3)
+mean((cluster::silhouette(moran_hclw_k3,        moran_distmat))[, 3])
+
+# Plot of silhouette widths for the first case (k-means, k = 2).
+plot(cluster::silhouette(moran_kmn_k2$cluster, moran_distmat),
+     main = "Silhouette plot (k-means, k = 2)",
+     col = c("darkred", "darkblue"))
 
 # =============================================================================
-# D. External cluster validity assessment.
+#   Questions
 # =============================================================================
 
-# Use the adjusted rand index for external cluster validity assessment.
+# ? What does the silhouette width values tell us ?
+# ? Which clustering for each dataset seems to be the most suitable ?
+# ? Does cutting the hclust tree to get 5 clusters improve the silhouette width ?
 
-# Start with the Zhang et al. dataset.
+# What can also be done:
+#   - Use other metrics than silhouette (see fpc::cluster.stats)
+#   - Use other clustering algorithms (e.g., gmm, DBscan).
+
+# =============================================================================
+#
+# E. External cluster validity assessment.
+#
+# =============================================================================
+
+# Use the adjusted rand index for external cluster validity assessment
+# effectively comparing how the results agree with the disease status 
+# associated with the samples.
+
+# =============================================================================
+#   Start with the Zhang et al. dataset.
+# =============================================================================
 
 # Adjusted rand index (Zhang et al., k-means, k = 2).
-adjustedRandIndex(kclust2_zhang$cluster, zhang_outcome_final)
+mclust::adjustedRandIndex(zhang_kmn_k2$cluster, zhang_outcome_final)
 
 # Adjusted rand index (Zhang et al., k-means, k = 3).
-adjustedRandIndex(kclust3_zhang$cluster, zhang_outcome_final)
+mclust::adjustedRandIndex(zhang_kmn_k3$cluster, zhang_outcome_final)
 
-# Adjusted rand index (Zhang et al., hclust, k = 2).
-adjustedRandIndex(hcl2_zhang, zhang_outcome_final)
+# Adjusted rand index (Zhang et al., hclust(avg), k = 2).
+mclust::adjustedRandIndex(zhang_hcl_k2,         zhang_outcome_final)
 
-# Adjusted rand index (Zhang et al., hclust, k = 3).
-adjustedRandIndex(hcl3_zhang, zhang_outcome_final)
+# Adjusted rand index (Zhang et al., hclust(avg), k = 3).
+mclust::adjustedRandIndex(zhang_hcl_k3,         zhang_outcome_final)
+
+# Adjusted rand index (Zhang et al., hclust(avg), k = 5).
+mclust::adjustedRandIndex(zhang_hcl_k5,         zhang_outcome_final)
+
+# Adjusted rand index (Zhang et al., hclust(wrd), k = 2).
+mclust::adjustedRandIndex(zhang_hclw_k2,        zhang_outcome_final)
+
+# Adjusted rand index (Zhang et al., hclust(wrd), k = 3).
+mclust::adjustedRandIndex(zhang_hclw_k3,        zhang_outcome_final)
+
+# Adjusted rand index (Zhang et al., hclust(wrd), k = 5).
+mclust::adjustedRandIndex(zhang_hclw_k5,        zhang_outcome_final)
+
+# =============================================================================
+#   Continue with the Moran et al. dataset.
+# =============================================================================
 
 # Adjusted rand index (Moran et al., k-means, k = 2).
-adjustedRandIndex(kclust2_moran$cluster, moran_outcome_final)
+mclust::adjustedRandIndex(moran_kmn_k2$cluster, moran_outcome_final)
 
 # Adjusted rand index (Moran et al., k-means, k = 3).
-adjustedRandIndex(kclust3_moran$cluster, moran_outcome_final)
+mclust::adjustedRandIndex(moran_kmn_k3$cluster, moran_outcome_final)
 
-# Adjusted rand index (Moran et al., hclust, k = 2).
-adjustedRandIndex(hcl2_moran, moran_outcome_final)
+# Adjusted rand index (Moran et al., hclust(avg), k = 2).
+mclust::adjustedRandIndex(moran_hcl_k2,         moran_outcome_final)
 
-# Adjusted rand index (Moran et al., hclust, k = 3).
-adjustedRandIndex(hcl3_moran, moran_outcome_final)
+# Adjusted rand index (Moran et al., hclust(avg), k = 3).
+mclust::adjustedRandIndex(moran_hcl_k3,         moran_outcome_final)
+
+# Adjusted rand index (Moran et al., hclust(avg), k = 5).
+mclust::adjustedRandIndex(moran_hcl_k5,         moran_outcome_final)
+
+# Adjusted rand index (Moran et al., hclust(wrd), k = 2).
+mclust::adjustedRandIndex(moran_hclw_k2,        moran_outcome_final)
+
+# Adjusted rand index (Moran et al., hclust(wrd), k = 3).
+mclust::adjustedRandIndex(moran_hclw_k3,        moran_outcome_final)
+
+# Adjusted rand index (Moran et al., hclust(wrd), k = 5).
+mclust::adjustedRandIndex(moran_hclw_k5,        moran_outcome_final)
+
+# =============================================================================
+#   Questions.
+# =============================================================================
+
+# ? What does the adjusted rand index values tell us ?
+# ? Any agreement with the silhouette widths values ?
+
+# What can also be done:
+#   - Use other metrics than ARI (see fpc::cluster.stats)
 
 
 
