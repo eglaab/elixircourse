@@ -455,14 +455,6 @@ library("mclust")
 # reproducible.
 set.seed(20221130)
 
-# Setting the working directory (in case you start from there).
-setwd('/set/your/current/working/directory/here')
-setwd('C:/set/your/current/working/directory/here')
-
-# Load datasets from day 1.
-load(file = "moran_preprocessed.Rdata")
-load(file = "zhang_preprocessed.Rdata")
-
 # =============================================================================
 #
 # A. Prepare the data for the clustering analysis.
