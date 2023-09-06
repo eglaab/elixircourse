@@ -148,8 +148,7 @@ any(is.na(mapids))
 # ok, no missing IDs
 
 # extract gene symbols corresponding to microarray Probe IDs (take always the first symbol mapped)
-mapped_symbols = sapply( as.character(annot$Gene.Symbol[mapids]) , function(x) strsplit(x, " /// ")[[1]][1])
-
+gene_symbols = sapply( as.character(annot$Gene.Symbol[mapids]) , function(x) strsplit(x, " /// ")[[1]][1])
 
 		
 #
@@ -203,7 +202,7 @@ probe2genemat <- function(matdat, mat_conv)
 }
 
 # Run the conversion from probe matrix to gene matrix (Zhang data)
-zhang_symb = probe2genemat(zhangvsn, mapped_symbols)
+zhang_symb = probe2genemat(zhangvsn, gene_symbols)
 # get the original column names
 colnames(zhang_symb) = colnames(zhangvsn)
 
@@ -211,7 +210,7 @@ colnames(zhang_symb) = colnames(zhangvsn)
 dim(zhang_symb)
 
 # Run the conversion from probe matrix to gene matrix (Moran data)
-moran_symb = probe2genemat(moranvsn, mapped_symbols)
+moran_symb = probe2genemat(moranvsn, gene_symbols)
 colnames(moran_symb) = colnames(moranvsn)
 
 dim(moran_symb)
@@ -296,41 +295,39 @@ head(msigdb_go_pathways)
 # Apply classical Fisher's Exact test (significance-of-overlap computation) - Zhang et al.
 #
 
-fisher_go_zhang <- enricher(zhang_degs, universe = mapped_symbols, pAdjustMethod = "BH", pvalueCutoff=1.0, qvalueCutoff = 0.2, TERM2GENE = msigdb_go_pathways)
-head(fisher_go_zhang)
+fisher_go_zhang <- enricher(zhang_degs, universe = gene_symbols, pAdjustMethod = "BH", pvalueCutoff=1.0, qvalueCutoff = 0.2, TERM2GENE = msigdb_go_pathways)
+head(fisher_go_zhang[,1:6])
 
-fisher_kegg_zhang <- enricher(zhang_degs, universe = mapped_symbols, pAdjustMethod = "BH", pvalueCutoff=1.0, qvalueCutoff = 0.2, TERM2GENE = msigdb_kegg_pathways)
-head(fisher_kegg_zhang)
+fisher_kegg_zhang <- enricher(zhang_degs, universe = gene_symbols, pAdjustMethod = "BH", pvalueCutoff=1.0, qvalueCutoff = 0.2, TERM2GENE = msigdb_kegg_pathways)
+head(fisher_kegg_zhang[,1:6])
 
-fisher_biocarta_zhang <- enricher(zhang_degs, universe = mapped_symbols, pAdjustMethod = "BH", pvalueCutoff=1.0, qvalueCutoff = 0.2, TERM2GENE = msigdb_biocarta_pathways)
-head(fisher_biocarta_zhang)
+fisher_biocarta_zhang <- enricher(zhang_degs, universe = gene_symbols, pAdjustMethod = "BH", pvalueCutoff=1.0, qvalueCutoff = 0.2, TERM2GENE = msigdb_biocarta_pathways)
+head(fisher_biocarta_zhang[,1:6])
+# no gene can be mapped
 
-fisher_reactome_zhang <- enricher(zhang_degs, universe = mapped_symbols, pAdjustMethod = "BH", pvalueCutoff=1.0, qvalueCutoff = 0.2, TERM2GENE = msigdb_reactome_pathways)
-head(fisher_reactome_zhang)
+fisher_reactome_zhang <- enricher(zhang_degs, universe = gene_symbols, pAdjustMethod = "BH", pvalueCutoff=1.0, qvalueCutoff = 0.2, TERM2GENE = msigdb_reactome_pathways)
+head(fisher_reactome_zhang[,1:6])
 
-fisher_positional_zhang <- enricher(zhang_degs, universe = mapped_symbols, pAdjustMethod = "BH", pvalueCutoff=1.0, qvalueCutoff = 0.2, TERM2GENE = msigdb_positional)
-head(fisher_positional_zhang)
+fisher_positional_zhang <- enricher(zhang_degs, universe = gene_symbols, pAdjustMethod = "BH", pvalueCutoff=1.0, qvalueCutoff = 0.2, TERM2GENE = msigdb_positional)
+head(fisher_positional_zhang[,1:6])
+
 
 
 #
 # Apply classical Fisher's Exact test (significance-of-overlap computation) - Moran et al.
 #
 
-fisher_go_moran <- enricher(moran_degs, universe = mapped_symbols, pAdjustMethod = "BH", pvalueCutoff=1.0, qvalueCutoff = 0.2, TERM2GENE = msigdb_go_pathways)
-head(fisher_go_moran)
+fisher_go_moran <- enricher(moran_degs, universe = gene_symbols, pAdjustMethod = "BH", pvalueCutoff=1.0, qvalueCutoff = 0.2, TERM2GENE = msigdb_go_pathways)
+head(fisher_go_moran[,1:6])
 
-fisher_kegg_moran <- enricher(moran_degs, universe = mapped_symbols, pAdjustMethod = "BH", pvalueCutoff=1.0, qvalueCutoff = 0.2, TERM2GENE = msigdb_kegg_pathways)
-head(fisher_kegg_moran)
+fisher_kegg_moran <- enricher(moran_degs, universe = gene_symbols, pAdjustMethod = "BH", pvalueCutoff=1.0, qvalueCutoff = 0.2, TERM2GENE = msigdb_kegg_pathways)
+head(fisher_kegg_moran[,1:6])
 
-fisher_biocarta_moran <- enricher(moran_degs, universe = mapped_symbols, pAdjustMethod = "BH", pvalueCutoff=1.0, qvalueCutoff = 0.2, TERM2GENE = msigdb_biocarta_pathways)
-head(fisher_biocarta_moran)
+fisher_reactome_moran <- enricher(moran_degs, universe = gene_symbols, pAdjustMethod = "BH", pvalueCutoff=1.0, qvalueCutoff = 0.2, TERM2GENE = msigdb_reactome_pathways)
+head(fisher_reactome_moran[,1:6])
 
-fisher_reactome_moran <- enricher(moran_degs, universe = mapped_symbols, pAdjustMethod = "BH", pvalueCutoff=1.0, qvalueCutoff = 0.2, TERM2GENE = msigdb_reactome_pathways)
-head(fisher_reactome_moran)
-
-fisher_positional_moran <- enricher(moran_degs, universe = mapped_symbols, pAdjustMethod = "BH", pvalueCutoff=1.0, qvalueCutoff = 0.2, TERM2GENE = msigdb_positional)
-head(fisher_positional_moran)
-
+fisher_positional_moran <- enricher(moran_degs, universe = gene_symbols, pAdjustMethod = "BH", pvalueCutoff=1.0, qvalueCutoff = 0.2, TERM2GENE = msigdb_positional)
+head(fisher_positional_moran[,1:6])
 
 
 
