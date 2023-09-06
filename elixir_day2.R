@@ -664,12 +664,6 @@ mean((cluster::silhouette(zhang_hcl_k2,         zhang_distmat))[, 3])
 # Average silhouette width (Zhang et al., hclust(avg), k = 3).
 mean((cluster::silhouette(zhang_hcl_k3,         zhang_distmat))[, 3])
 
-# Average silhouette width (Zhang et al., hclust(wrd), k = 2).
-mean((cluster::silhouette(zhang_hclw_k2,        zhang_distmat))[, 3])
-
-# Average silhouette width (Zhang et al., hclust(wrd), k = 3).
-mean((cluster::silhouette(zhang_hclw_k3,        zhang_distmat))[, 3])
-
 # Plot of silhouette widths for the first case (k-means, k = 2).
 plot(cluster::silhouette(zhang_kmn_k2$cluster, zhang_distmat),
      main = "Silhouette plot (k-means, k = 2)",
@@ -737,9 +731,6 @@ mclust::adjustedRandIndex(zhang_hcl_k3,         zhang_outcome_final)
 # Adjusted rand index (Zhang et al., hclust(avg), k = 5).
 mclust::adjustedRandIndex(zhang_hcl_k5,         zhang_outcome_final)
 
-# Adjusted rand index (Zhang et al., hclust(wrd), k = 5).
-mclust::adjustedRandIndex(zhang_hclw_k5,        zhang_outcome_final)
-
 # =============================================================================
 #   Continue with the Moran et al. dataset.
 # =============================================================================
@@ -758,15 +749,6 @@ mclust::adjustedRandIndex(moran_hcl_k3,         moran_outcome_final)
 
 # Adjusted rand index (Moran et al., hclust(avg), k = 5).
 mclust::adjustedRandIndex(moran_hcl_k5,         moran_outcome_final)
-
-# Adjusted rand index (Moran et al., hclust(wrd), k = 2).
-mclust::adjustedRandIndex(moran_hclw_k2,        moran_outcome_final)
-
-# Adjusted rand index (Moran et al., hclust(wrd), k = 3).
-mclust::adjustedRandIndex(moran_hclw_k3,        moran_outcome_final)
-
-# Adjusted rand index (Moran et al., hclust(wrd), k = 5).
-mclust::adjustedRandIndex(moran_hclw_k5,        moran_outcome_final)
 
 # =============================================================================
 #   Questions.
