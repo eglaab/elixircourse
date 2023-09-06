@@ -21,6 +21,28 @@ local({r <- getOption("repos")
 # update package installation only if needed
 # update.packages(ask = FALSE, dependencies = c('Suggests'))
 
+
+# for old R versions, install packages as follows:
+# source("http://bioconductor.org/biocLite.R")
+# biocLite("hgu133a.db")
+
+if(!require('hgu133a.db'))
+{
+	if (!requireNamespace("BiocManager", quietly = TRUE))
+	    install.packages("BiocManager")
+	BiocManager::install("hgu133a.db", suppressUpdates=TRUE, ask = FALSE)
+	require('hgu133a.db')
+}
+
+# load package for access to datasets from the GEO database
+if(!require('GEOquery'))
+{
+	if (!requireNamespace("BiocManager", quietly = TRUE))
+	    install.packages("BiocManager")
+	BiocManager::install("GEOquery", suppressUpdates=TRUE, ask = FALSE)
+	require('GEOquery')
+}
+
 # load R-packages for quality control
 
 if(!require('arrayQualityMetrics'))
