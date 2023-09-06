@@ -250,12 +250,11 @@ table(zhang_outcomefilt)
 #           disease state: Control disease state: Parkinsons disease 
 #                               18                                11
 
-
+# Load gene symbols
 gene_symbols = sapply( as.character(gset@featureData@data$Gene.symbol) , function(x) strsplit(x, "///")[[1]][1])
 
-
-# replace by loading Affymetrix annotations manually
-
+head(gene_symbols)
+		      
 
 #
 # 2) Dataset GSE8397: L. B. Moran et al., Neurogenetics, 2006, SN + frontal gyrus, post mortem,	PD (29), healthy (18)
@@ -291,7 +290,6 @@ gene_symbols = sapply( as.character(gset@featureData@data$Gene.symbol) , functio
 #moran_outcome[grep("control",moran_outcome)] = rep("control",length(grep("control",moran_outcome)))
 #moran_outcome[grep("Parkinson",moran_outcome)] = rep("parkinson",length(grep("Parkinson",moran_outcome)))
 #
-
 
 gset <- getGEO("GSE8397", GSEMatrix =TRUE, AnnotGPL=TRUE)
 if (length(gset) > 1) idx <- grep("GPL96", attr(gset, "names")) else idx <- 1
