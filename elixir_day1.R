@@ -519,7 +519,7 @@ pmat = cbind(ttable_zhang[match(rownames(zhangvsn), rownames(ttable_zhang)),]$P,
 rownames(pmat)= rownames(zhangvsn)
 
 
-compresmeta = cbind(metacomb[metaord,1], conv_ids[match(metacomb[metaord,1],rownames(logfcmat))], logfcmat[match(metacomb[metaord,1],rownames(logfcmat)),], pmat[match(metacomb[metaord,1],rownames(pmat)),], metacomb[metaord,2])
+compresmeta = cbind(metacomb[metaord,1], gene_symbols[match(metacomb[metaord,1],rownames(logfcmat))], logfcmat[match(metacomb[metaord,1],rownames(logfcmat)),], pmat[match(metacomb[metaord,1],rownames(pmat)),], metacomb[metaord,2])
 colnames(compresmeta) = c("ID", "Gene Symbol", paste(c("Zhang","Moran"),"logFC"), paste(c("Zhang","Moran"),"P"), "Comb. Z")
 
 head(compresmeta)
@@ -530,5 +530,10 @@ dim(compresmeta)
 save(moranvsn, moran_outcome_final, file="moran_preprocessed.Rdata")
 save(zhangvsn, zhang_outcome_final, file="zhang_preprocessed.Rdata")
 
+# Alternatively, we can save the entire session (requires more space)
+save.image()
+# reload the session data
+#load(".RData")
+		      
 # For reproducibility: show and save information on all loaded R package versions
 sessionInfo()
