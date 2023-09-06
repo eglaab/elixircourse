@@ -737,12 +737,6 @@ mclust::adjustedRandIndex(zhang_hcl_k3,         zhang_outcome_final)
 # Adjusted rand index (Zhang et al., hclust(avg), k = 5).
 mclust::adjustedRandIndex(zhang_hcl_k5,         zhang_outcome_final)
 
-# Adjusted rand index (Zhang et al., hclust(wrd), k = 2).
-mclust::adjustedRandIndex(zhang_hclw_k2,        zhang_outcome_final)
-
-# Adjusted rand index (Zhang et al., hclust(wrd), k = 3).
-mclust::adjustedRandIndex(zhang_hclw_k3,        zhang_outcome_final)
-
 # Adjusted rand index (Zhang et al., hclust(wrd), k = 5).
 mclust::adjustedRandIndex(zhang_hclw_k5,        zhang_outcome_final)
 
