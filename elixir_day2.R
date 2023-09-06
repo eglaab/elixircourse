@@ -728,9 +728,6 @@ mclust::adjustedRandIndex(zhang_hcl_k2,         zhang_outcome_final)
 # Adjusted rand index (Zhang et al., hclust(avg), k = 3).
 mclust::adjustedRandIndex(zhang_hcl_k3,         zhang_outcome_final)
 
-# Adjusted rand index (Zhang et al., hclust(avg), k = 5).
-mclust::adjustedRandIndex(zhang_hcl_k5,         zhang_outcome_final)
-
 # =============================================================================
 #   Continue with the Moran et al. dataset.
 # =============================================================================
@@ -746,9 +743,6 @@ mclust::adjustedRandIndex(moran_hcl_k2,         moran_outcome_final)
 
 # Adjusted rand index (Moran et al., hclust(avg), k = 3).
 mclust::adjustedRandIndex(moran_hcl_k3,         moran_outcome_final)
-
-# Adjusted rand index (Moran et al., hclust(avg), k = 5).
-mclust::adjustedRandIndex(moran_hcl_k5,         moran_outcome_final)
 
 # =============================================================================
 #   Questions.
