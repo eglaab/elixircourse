@@ -931,7 +931,11 @@ ppc(conf_moran[2,2], conf_moran[1,2], conf_moran[1,1], conf_moran[2,1])
 # PathVar: www.pathvar.embl.de
 #
 
-
+# optionally, save the session
+save.image()
+# reload the session data
+#load(".RData")
+		      
 # For reproducibility: show and save information on all loaded R package versions
 sessionInfo()
 
