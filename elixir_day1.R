@@ -145,6 +145,7 @@ setwd('/Users/set/your/current/working/directory/here')
 setwd('C:/set/your/current/working/directory/here')
 
 
+
 #
 # 1) Dataset: GEO-ID: GSE20295, Y. Zhang et al., Am J Med Genet B Neuropsychiatr Genet, 2005 multiple brain regions, post mortem, PD (40), healthy (53)
 #    Array platform: Affymetrix HG-U133A
@@ -158,18 +159,46 @@ setwd('C:/set/your/current/working/directory/here')
 #
 
 # for Mac/Linux - automatically via R command line
-system('wget ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE20nnn/GSE20295/matrix/GSE20295_series_matrix.txt.gz')
+#system('wget ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE20nnn/GSE20295/matrix/GSE20295_series_matrix.txt.gz')
 
 # Read the data into R
-zhangdatgeo = read.table(gzfile("GSE20295_series_matrix.txt.gz"), header=T, comment.char="!", sep="\t")
+#zhangdatgeo = read.table(gzfile("GSE20295_series_matrix.txt.gz"), header=T, comment.char="!", sep="\t")
 
 # Use the labels in the first column as row names
-zhangdat = zhangdatgeo[,2:ncol(zhangdatgeo)]
-rownames(zhangdat) = zhangdatgeo[,1]
+#zhangdat = zhangdatgeo[,2:ncol(zhangdatgeo)]
+#rownames(zhangdat) = zhangdatgeo[,1]
+#
+#
+# Filter out tissue samples which are not from the midbrain / substantia nigra region
+#zhang_tissues = as.matrix(read.table(gzfile("GSE20295_series_matrix.txt.gz"), header=F, nrows=1, skip=39, sep="\t"))
+#zhang_tissues = zhang_tissues[2:length(zhang_tissues)]
+#
+# Load the outcome variable (PD vs. control)
+#zhang_outcome = as.matrix(read.table(gzfile("GSE20295_series_matrix.txt.gz"), header=F, nrows=1, skip=41, sep="\t"))
+#zhang_outcome = zhang_outcome[2:length(zhang_outcome)]
+#
+# convert Affymetrix probe set IDs to gene symbols
+#gene_symbols <- mapIds(hgu133a.db, keys=as.character(rownames(zhangfilt)), c("SYMBOL"), keytype="PROBEID")
+#head(gene_symbols)
+#
+
+
+Sys.setenv("VROOM_CONNECTION_SIZE" = 250000)
+
+gset <- getGEO("GSE20295", GSEMatrix =TRUE, AnnotGPL=TRUE)
+if (length(gset) > 1) idx <- grep("GPL96", attr(gset, "names")) else idx <- 1
+gset <- gset[[idx]]
+
+# make proper column names
+fvarLabels(gset) <- make.names(fvarLabels(gset))
+
+zhangdat <- exprs(gset)
+
+head(zhangdat)
+
 
 # Filter out tissue samples which are not from the midbrain / substantia nigra region
-zhang_tissues = as.matrix(read.table(gzfile("GSE20295_series_matrix.txt.gz"), header=F, nrows=1, skip=39, sep="\t"))
-zhang_tissues = zhang_tissues[2:length(zhang_tissues)]
+zhang_tissues = gset$source_name_ch1
 
 table(zhang_tissues)
 # zhang_tissues
@@ -177,10 +206,11 @@ table(zhang_tissues)
 #                                     29                                      35                                      29 
 
 # select only substantia nigra samples
-nigra_ind = which(zhang_tissues == "Postmortem brain whole substantia nigra")
+nigra_ind = grep("substantia nigra", zhang_tissues)
 
-zhang_outcome = as.matrix(read.table(gzfile("GSE20295_series_matrix.txt.gz"), header=F, nrows=1, skip=41, sep="\t"))
-zhang_outcome = zhang_outcome[2:length(zhang_outcome)]
+# Load the outcome variable (PD vs. control)
+zhang_outcome = gset$characteristics_ch1
+
 table(zhang_outcome)
 #zhang_outcome
 #            disease state: control             disease state: Control disease state: Parkinson's disease 
@@ -199,31 +229,10 @@ table(zhang_outcomefilt)
 #                               18                                11
 
 
-#
-# unzip Affymetrix annotation file (downloaded into the working directory, see above):
-#
-# In Windows:
-# - unzip the file "HG-U133A.na36.annot.csv.zip" manually
-#
-# In Mac/Linux:
-# - use the following line of code:
-# system('unzip HG-U133A.na36.annot.csv.zip')
+gene_symbols = sapply( as.character(gset@featureData@data$Gene.symbol) , function(x) strsplit(x, "///")[[1]][1])
 
 
-# read annotations file (ignoring comments)
-annot = read.csv("HG-U133A.na36.annot.csv", comment.char="#")
-
-# map probes to microarray rownames
-mapids = match(rownames(zhangfilt), annot$Probe.Set.ID)
-
-# check if all IDs were mapped successfully
-any(is.na(mapids))
-#[1] FALSE
-# ok, no missing IDs
-
-# extract gene symbols corresponding to microarray Probe IDs (take always the first symbol mapped)
-conv_ids = sapply( as.character(annot$Gene.Symbol[mapids]) , function(x) strsplit(x, " /// ")[[1]][1])
-
+# replace by loading Affymetrix annotations manually
 
 
 #
@@ -239,25 +248,56 @@ conv_ids = sapply( as.character(annot$Gene.Symbol[mapids]) , function(x) strspli
 #
 
 # for Mac/Linux - automatically via R command line
-system('wget ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE8nnn/GSE8397/matrix/GSE8397-GPL96_series_matrix.txt.gz')
+#system('wget ftp://ftp.ncbi.nlm.nih.gov/geo/series/GSE8nnn/GSE8397/matrix/GSE8397-GPL96_series_matrix.txt.gz')
 
 # Read the data into R
-morandatgeo = read.table(gzfile("GSE8397-GPL96_series_matrix.txt.gz"), header=T, comment.char="!", sep="\t")
-
+#morandatgeo = read.table(gzfile("GSE8397-GPL96_series_matrix.txt.gz"), header=T, comment.char="!", sep="\t")
+#
 # Use the labels in the first column as row names
-morandat = morandatgeo[,2:ncol(morandatgeo)]
-rownames(morandat) = morandatgeo[,1]
+#morandat = morandatgeo[,2:ncol(morandatgeo)]
+#rownames(morandat) = morandatgeo[,1]
+#
+# Filter out tissue samples which are not from the midbrain / substantia nigra region
+#moran_tissues = as.matrix(read.table(gzfile("GSE8397-GPL96_series_matrix.txt.gz"), header=F, nrows=1, skip=36, sep="\t"))
+#moran_tissues = moran_tissues[2:length(moran_tissues)]
+#
+#nigra_ind = grep("substantia nigra",moran_tissues)
+#
+#
+#moran_outcome = as.matrix(read.table(gzfile("GSE8397-GPL96_series_matrix.txt.gz"), header=F, nrows=1, skip=28, sep="\t"))
+#moran_outcome = moran_outcome[2:length(moran_outcome)]
+#moran_outcome[grep("control",moran_outcome)] = rep("control",length(grep("control",moran_outcome)))
+#moran_outcome[grep("Parkinson",moran_outcome)] = rep("parkinson",length(grep("Parkinson",moran_outcome)))
+#
+
+
+gset <- getGEO("GSE8397", GSEMatrix =TRUE, AnnotGPL=TRUE)
+if (length(gset) > 1) idx <- grep("GPL96", attr(gset, "names")) else idx <- 1
+gset <- gset[[idx]]
+
+# make proper column names
+fvarLabels(gset) <- make.names(fvarLabels(gset))
+
+morandat <- exprs(gset)
+
 
 # Filter out tissue samples which are not from the midbrain / substantia nigra region
-moran_tissues = as.matrix(read.table(gzfile("GSE8397-GPL96_series_matrix.txt.gz"), header=F, nrows=1, skip=36, sep="\t"))
-moran_tissues = moran_tissues[2:length(moran_tissues)]
+moran_tissues = gset$source_name_ch1
 
-nigra_ind = grep("substantia nigra",moran_tissues)
+table(moran_tissues)
+# moran_tissues
+#  Post mortem superior frontal gyrus Post-mortem lateral substantia nigra  Post-mortem medial substantia nigra 
+#                                   8                                   16                                   23
 
-moran_outcome = as.matrix(read.table(gzfile("GSE8397-GPL96_series_matrix.txt.gz"), header=F, nrows=1, skip=28, sep="\t"))
-moran_outcome = moran_outcome[2:length(moran_outcome)]
+nigra_ind = grep("substantia nigra", moran_tissues)
+
+# Load the outcome variable (PD vs. control)
+moran_outcome = as.character(gset$title)
 moran_outcome[grep("control",moran_outcome)] = rep("control",length(grep("control",moran_outcome)))
 moran_outcome[grep("Parkinson",moran_outcome)] = rep("parkinson",length(grep("Parkinson",moran_outcome)))
+
+table(moran_outcome)
+
 
 moranfilt = morandat[,nigra_ind]
 dim(moranfilt)
@@ -266,7 +306,7 @@ dim(moranfilt)
 moran_outcomefilt = moran_outcome[nigra_ind]
 table(moran_outcomefilt)
 #moran_outcomefilt
-#  control Parkinson 
+#  control parkinson 
 #       15        24
 
 all(rownames(zhangfilt) == rownames(moranfilt))
