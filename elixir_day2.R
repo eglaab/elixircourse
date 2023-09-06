@@ -691,12 +691,6 @@ mean((cluster::silhouette(moran_hcl_k2,         moran_distmat))[, 3])
 # Average silhouette width (Moran et al., hclust(avg), k = 3)
 mean((cluster::silhouette(moran_hcl_k3,         moran_distmat))[, 3])
 
-# Average silhouette width (Moran et al., hclust(wrd), k = 2)
-mean((cluster::silhouette(moran_hclw_k2,        moran_distmat))[, 3])
-
-# Average silhouette width (Moran et al., hclust(wrd), k = 3)
-mean((cluster::silhouette(moran_hclw_k3,        moran_distmat))[, 3])
-
 # Plot of silhouette widths for the first case (k-means, k = 2).
 plot(cluster::silhouette(moran_kmn_k2$cluster, moran_distmat),
      main = "Silhouette plot (k-means, k = 2)",
