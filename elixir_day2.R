@@ -490,7 +490,6 @@ dim(moran_filt)
 # clustering columns (samples) so we transpose the data.
 zhang <- t(zhang_filt)
 moran <- t(moran_filt)
-rm(zhang_filt, moran_filt, zhangvsn, moranvsn)
 
 # What can also be done:
 #   - scaling the data (base::scale).
