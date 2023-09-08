@@ -415,6 +415,16 @@ close(clip)
 # Windows version
 write.table(zhang_degs, "clipboard", sep = '\t', row.names = FALSE, col.names= FALSE, quote = FALSE)
 
+# Ubuntu Linux version
+# first install the xclip package as follows from the command line:
+# sudo apt-get -y install xclip
+
+clipboard <- function(x, sep="\t", row.names=FALSE, col.names=TRUE){
+  con <- pipe("xclip -selection clipboard -i", open="w")
+  write.table(x, con, sep=sep, row.names=row.names, col.names=col.names, quote = F)
+  close(con)
+}
+clipboard(zhang_degs)
 
 # Moran et al.
 
@@ -426,6 +436,8 @@ close(clip)
 # Windows version
 write.table(moran_degs[1:100], "clipboard", sep = '\t', row.names = FALSE, col.names= FALSE, quote = FALSE)
 
+# Ubuntu Linux version
+clipboard(moran_degs[1:100])
 
 #
 # Cytoscape / Jepetto: Download Cytoscape from https://cytoscape.org/download.html and install,
