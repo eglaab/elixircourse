@@ -161,7 +161,7 @@ if(!require('e1071'))
 # format for Mac & Linux systems
 setwd('/Users/set/your/current/working/directory/here')
 # e.g.:
-# setwd('/Users/enrico.glaab/Downloads')
+# setwd('/Users/enrico/Downloads')
 
 # format for Windows
 setwd('C:/set/your/current/working/directory/here')
