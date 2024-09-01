@@ -4,8 +4,8 @@
 
 #
 # Installation instructions:
-# - Install the current version of R (3.6) for your operating system from https://ftp.gwdg.de/pub/misc/cran/
-# - Install the current version of R-Studio (1.2) from: https://www.rstudio.com/products/rstudio/download/
+# - Install the current version of R (at least v3.6) for your operating system from https://ftp.gwdg.de/pub/misc/cran/
+# - Install the current version of R-Studio (at least v1.2) from: https://www.rstudio.com/products/rstudio/download/
 #
 
 #
