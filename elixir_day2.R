@@ -398,7 +398,7 @@ head(gsea_positional_moran[,3:7])
 #
 
 #
-# - Goto www.enrichnet.org
+# - Goto https://lcsb-enrichnet.uni.lu
 # - Copy up top 100 genes to the EnrichNet web-interface (using the code below to move gene names to the clipboard)
 # - Set the Identifier format to "HGNC symbol" and try out a few analyses
 #
