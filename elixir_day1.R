@@ -487,8 +487,9 @@ samr.assess.samplesize.plot(samr.assess11)
 
 # Limma analysis of Zhang dataset
 zhang_label = ifelse(zhang_outcome_final == "disease state: Control","control","parkinson")
-design <- model.matrix(~ -1+factor(zhang_label))
-colnames(design) <- unique(zhang_label)
+grp <- factor(zhang_label, levels = c("control", "parkinson"))
+design <- model.matrix(~ 0 + grp)
+colnames(design) <- levels(grp)
 
 # compute simple linear model fit to microarray data (not robust)
 fit <- lmFit(zhangvsn, design)
@@ -506,8 +507,9 @@ head(ttable_zhang, 10)
 print(length(which(ttable_zhang$adj.P.Val < 0.05)))
 
 # Limma analysis of Moran dataset
-design <- model.matrix(~ -1+factor(moran_outcome_final))
-colnames(design) <- unique(moran_outcome_final)
+grp <- factor(moran_outcome_final, levels = c("control", "parkinson"))
+design <- model.matrix(~ 0 + grp)
+colnames(design) <- levels(grp)
 
 # compute simple linear model fit to microarray data (not robust)
 fit <- lmFit(moranvsn, design)
